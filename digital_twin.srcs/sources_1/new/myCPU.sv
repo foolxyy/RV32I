@@ -2,29 +2,29 @@
 
 module myCPU(
 
-    input wire clk,
-    input wire rst,
+    input wire cpu_clk,
+    input wire cpu_rst,
 
-    // output wire[`MemAddrBus] rib_ex_addr_o,    // 读�?�写外设的地�?
+    // output wire[`MemAddrBus] rib_ex_addr_o,    // 读�?�写外设的地�??
     output wire[`MemAddrBus] perip_addr,       
     // input wire[`MemBus] rib_ex_data_i,         // 从外设读取的数据
     input wire[`MemBus] perip_rdata,          
-    // output wire[`MemBus] rib_ex_data_o,        // 写入外设的数�?
+    // output wire[`MemBus] rib_ex_data_o,        // 写入外设的数�??
     output wire[`MemBus] perip_wdata,
 
     // output wire rib_ex_req_o,                  // 访问外设请求
-    // output wire rib_ex_we_o,                   // 写外设标�?
+    // output wire rib_ex_we_o,                   // 写外设标�??
     output wire perip_wen,
 
     // output wire[`MemAddrBus] rib_pc_addr_o,    // 取指地址
-    output wire[`MemAddrBus] iorm_addr,
-    // input wire[`MemBus] rib_pc_data_i,         // 取到的指令内�?
+    output wire[`MemAddrBus] irom_addr,
+    // input wire[`MemBus] rib_pc_data_i,         // 取到的指令内�??
     input wire[`MemBus] irom_data,
 
-    // input wire[`RegAddrBus] jtag_reg_addr_i,   // jtag模块读�?�写寄存器的地址
+    // input wire[`RegAddrBus] jtag_reg_addr_i,   // jtag模块读�?�写寄存器的地址
     // input wire[`RegBus] jtag_reg_data_i,       // jtag模块写寄存器数据
     // input wire jtag_reg_we_i,                  // jtag模块写寄存器标志
-    // output wire[`RegBus] jtag_reg_data_o,      // jtag模块读取到的寄存器数�?
+    // output wire[`RegBus] jtag_reg_data_o,      // jtag模块读取到的寄存器数�??
 
     // input wire rib_hold_flag_i,                // 总线暂停标志
     // input wire jtag_halt_flag_i,               // jtag暂停标志
@@ -32,7 +32,7 @@ module myCPU(
 
     // input wire[`INT_BUS] int_i                 // 中断信号
 
-    output logic [3:0]  perip_mask  //在ex中增加掩码�?�辑
+    output logic [3:0]  perip_mask  //在ex中增加掩码�?�辑
 
     );
 
@@ -143,12 +143,12 @@ module myCPU(
 
     assign perip_wen = ex_mem_req_o && ex_mem_we_o;
 
-    assign perip_mask = ex_mem_mask_o;  // ex 输出�? 2 位掩�?
+    assign perip_mask = ex_mem_mask_o;  // ex 输出�?? 2 位掩�??
 
     // pc_reg模块例化
     pc_reg u_pc_reg(
-        .clk(clk),
-        .rst(rst),
+        .clk(cpu_clk),
+        .rst(cpu_rst),
         // .jtag_reset_flag_i(jtag_reset_flag_i),
         .pc_o(pc_pc_o),
         .hold_flag_i(ctrl_hold_flag_o),
@@ -158,7 +158,7 @@ module myCPU(
 
     // ctrl模块例化
     ctrl u_ctrl(
-        .rst(rst),
+        .rst(cpu_rst),
         .jump_flag_i(ex_jump_flag_o),
         .jump_addr_i(ex_jump_addr_o),
         .hold_flag_ex_i(ex_hold_flag_o),
@@ -172,8 +172,8 @@ module myCPU(
 
     // regs模块例化
     regs u_regs(
-        .clk(clk),
-        .rst(rst),
+        .clk(cpu_clk),
+        .rst(cpu_rst),
         .we_i(ex_reg_we_o),
         .waddr_i(ex_reg_waddr_o),
         .wdata_i(ex_reg_wdata_o),
@@ -189,8 +189,8 @@ module myCPU(
 
     // // csr_reg模块例化
     // csr_reg u_csr_reg(
-    //     .clk(clk),
-    //     .rst(rst),
+    //     .clk(cpu_clk),
+    //     .rst(cpu_rst),
     //     .we_i(ex_csr_we_o),
     //     .raddr_i(id_csr_raddr_o),
     //     .waddr_i(ex_csr_waddr_o),
@@ -209,8 +209,8 @@ module myCPU(
 
     // if_id模块例化
     if_id u_if_id(
-        .clk(clk),
-        .rst(rst),
+        .clk(cpu_clk),
+        .rst(cpu_rst),
         // .inst_i(rib_pc_data_i),
         .inst_i(irom_data),
         .inst_addr_i(pc_pc_o),
@@ -223,7 +223,7 @@ module myCPU(
 
     // id模块例化
     id u_id(
-        .rst(rst),
+        .rst(cpu_rst),
         .inst_i(if_inst_o),
         .inst_addr_i(if_inst_addr_o),
         .reg1_rdata_i(regs_rdata1_o),
@@ -250,8 +250,8 @@ module myCPU(
 
     // id_ex模块例化
     id_ex u_id_ex(
-        .clk(clk),
-        .rst(rst),
+        .clk(cpu_clk),
+        .rst(cpu_rst),
         .inst_i(id_inst_o),
         .inst_addr_i(id_inst_addr_o),
         .reg_we_i(id_reg_we_o),
@@ -283,7 +283,7 @@ module myCPU(
 
     // ex模块例化
     ex u_ex(
-        .rst(rst),
+        .rst(cpu_rst),
         .inst_i(ie_inst_o),
         .inst_addr_i(ie_inst_addr_o),
         .reg_we_i(ie_reg_we_o),
@@ -333,8 +333,8 @@ module myCPU(
 
     // div模块例化
     div u_div(
-        .clk(clk),
-        .rst(rst),
+        .clk(cpu_clk),
+        .rst(cpu_rst),
         .dividend_i(ex_div_dividend_o),
         .divisor_i(ex_div_divisor_o),
         .start_i(ex_div_start_o),
@@ -348,8 +348,8 @@ module myCPU(
 
     // // clint模块例化
     // clint u_clint(
-    //     .clk(clk),
-    //     .rst(rst),
+    //     .clk(cpu_clk),
+    //     .rst(cpu_rst),
     //     .int_flag_i(if_int_flag_o),
     //     .inst_i(id_inst_o),
     //     .inst_addr_i(id_inst_addr_o),

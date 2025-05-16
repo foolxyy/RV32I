@@ -89,6 +89,7 @@ OPTRACE "Adding files" START { }
 add_files C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/imports/test_src/dram.coe
 add_files C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/imports/test_src/irom.coe
 add_files C:/Users/xy/Desktop/PRO/resource/src/coe/irom.coe
+add_files c:/Users/xy/Desktop/PRO/resource/src/coe/dram.coe
 read_verilog -library xil_defaultlib -sv {
   C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/counter.sv
   C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/display_seg.sv
@@ -100,13 +101,6 @@ read_verilog -library xil_defaultlib -sv {
   C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/uart.sv
   C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/top.sv
   C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/myCPU.sv
-  C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/mem.sv
-  C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/id_ex.sv
-  C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/if_id.sv
-  C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/id.sv
-  C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/pc_reg.sv
-  C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/regs.sv
-  C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/ex.sv
 }
 read_verilog -library xil_defaultlib {
   C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/rib.v
@@ -120,6 +114,7 @@ read_verilog -library xil_defaultlib {
   C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/ctrl.v
   C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/csr_reg.v
   C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/defines.v
+  C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/gen_dff.v
 }
 read_ip -quiet C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/ip/IROM/IROM.xci
 set_property used_in_implementation false [get_files -all c:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.gen/sources_1/ip/IROM/IROM_ooc.xdc]

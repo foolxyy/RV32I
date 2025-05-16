@@ -2,7 +2,7 @@
 -- Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2023.2 (win64) Build 4029153 Fri Oct 13 20:14:34 MDT 2023
--- Date        : Fri May 16 02:50:39 2025
+-- Date        : Fri May 16 21:30:21 2025
 -- Host        : xy running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -force -mode synth_stub
 --               c:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.gen/sources_1/ip/DRAM/DRAM_stub.vhdl
