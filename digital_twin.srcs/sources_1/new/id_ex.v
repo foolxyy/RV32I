@@ -1,7 +1,7 @@
 
 `include "defines.v"
 
-// 将译码结果向执行模块传递
+// 将译码结果向执行模块传�??
 module id_ex(
 
     input wire clk,
@@ -9,19 +9,19 @@ module id_ex(
 
     input wire[`InstBus] inst_i,            // 指令内容
     input wire[`InstAddrBus] inst_addr_i,   // 指令地址
-    input wire reg_we_i,                    // 写通用寄存器标志
-    input wire[`RegAddrBus] reg_waddr_i,    // 写通用寄存器地址
-    input wire[`RegBus] reg1_rdata_i,       // 通用寄存器1读数据
-    input wire[`RegBus] reg2_rdata_i,       // 通用寄存器2读数据
-    // input wire csr_we_i,                    // 写CSR寄存器标志
-    // input wire[`MemAddrBus] csr_waddr_i,    // 写CSR寄存器地址
+    input wire reg_we_i,                    // 写�?�用寄存器标�?
+    input wire[`RegAddrBus] reg_waddr_i,    // 写�?�用寄存器地�?
+    input wire[`RegBus] reg1_rdata_i,       // 通用寄存�?1读数�?
+    input wire[`RegBus] reg2_rdata_i,       // 通用寄存�?2读数�?
+    // input wire csr_we_i,                    // 写CSR寄存器标�?
+    // input wire[`MemAddrBus] csr_waddr_i,    // 写CSR寄存器地�?
     // input wire[`RegBus] csr_rdata_i,        // CSR寄存器读数据
     input wire[`MemAddrBus] op1_i,
     input wire[`MemAddrBus] op2_i,
     input wire[`MemAddrBus] op1_jump_i,
     input wire[`MemAddrBus] op2_jump_i,
 
-    input wire[`Hold_Flag_Bus] hold_flag_i, // 流水线暂停标志
+    input wire[`Hold_Flag_Bus] hold_flag_i, // 流水线暂停标�?
 
     output wire[`MemAddrBus] op1_o,
     output wire[`MemAddrBus] op2_o,
@@ -29,12 +29,12 @@ module id_ex(
     output wire[`MemAddrBus] op2_jump_o,
     output wire[`InstBus] inst_o,            // 指令内容
     output wire[`InstAddrBus] inst_addr_o,   // 指令地址
-    output wire reg_we_o,                    // 写通用寄存器标志
-    output wire[`RegAddrBus] reg_waddr_o,    // 写通用寄存器地址
-    output wire[`RegBus] reg1_rdata_o,       // 通用寄存器1读数据
-    output wire[`RegBus] reg2_rdata_o,       // 通用寄存器2读数据
-    // output wire csr_we_o,                    // 写CSR寄存器标志
-    // output wire[`MemAddrBus] csr_waddr_o,    // 写CSR寄存器地址
+    output wire reg_we_o,                    // 写�?�用寄存器标�?
+    output wire[`RegAddrBus] reg_waddr_o,    // 写�?�用寄存器地�?
+    output wire[`RegBus] reg1_rdata_o,       // 通用寄存�?1读数�?
+    output wire[`RegBus] reg2_rdata_o       // 通用寄存�?2读数�?
+    // output wire csr_we_o,                    // 写CSR寄存器标�?
+    // output wire[`MemAddrBus] csr_waddr_o,    // 写CSR寄存器地�?
     // output wire[`RegBus] csr_rdata_o         // CSR寄存器读数据
 
     );

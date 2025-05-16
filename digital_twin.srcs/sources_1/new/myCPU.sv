@@ -1,114 +1,375 @@
-// myCPU.sv
-// Top-level module that integrates the modified tinyriscv-based core to match contest interface
+`include "defines.v"
 
-module myCPU (
-    input  logic         cpu_clk,
-    input  logic         cpu_rst,
+module myCPU(
 
-    // IROM interface
-    output logic [31:0] irom_addr,
-    input  logic [31:0] irom_data,
+    input wire clk,
+    input wire rst,
 
-    // DRAM/Peripheral interface
-    output logic [31:0] perip_addr,
-    output logic        perip_wen,
-    output logic [3:0]  perip_mask,
-    output logic [31:0] perip_wdata,
-    input  logic [31:0] perip_rdata
-);
+    // output wire[`MemAddrBus] rib_ex_addr_o,    // 读�?�写外设的地�?
+    output wire[`MemAddrBus] perip_addr,       
+    // input wire[`MemBus] rib_ex_data_i,         // 从外设读取的数据
+    input wire[`MemBus] perip_rdata,          
+    // output wire[`MemBus] rib_ex_data_o,        // 写入外设的数�?
+    output wire[`MemBus] perip_wdata,
 
-    // Internal wires between modules
-    logic [31:0] pc_current;
-    logic        jump_flag;
-    logic [31:0] jump_addr;
-    logic        stall;
+    // output wire rib_ex_req_o,                  // 访问外设请求
+    // output wire rib_ex_we_o,                   // 写外设标�?
+    output wire perip_wen,
 
-    logic [31:0] inst_ifid, pc_ifid;
-    logic        flush_ifid;
+    // output wire[`MemAddrBus] rib_pc_addr_o,    // 取指地址
+    output wire[`MemAddrBus] iorm_addr,
+    // input wire[`MemBus] rib_pc_data_i,         // 取到的指令内�?
+    input wire[`MemBus] irom_data,
 
-    logic [4:0] rs1_id, rs2_id, rd_id;
-    logic [31:0] reg1_id, reg2_id, imm_id;
-    logic        reg_we_id;
-    logic        stall_id;
+    // input wire[`RegAddrBus] jtag_reg_addr_i,   // jtag模块读�?�写寄存器的地址
+    // input wire[`RegBus] jtag_reg_data_i,       // jtag模块写寄存器数据
+    // input wire jtag_reg_we_i,                  // jtag模块写寄存器标志
+    // output wire[`RegBus] jtag_reg_data_o,      // jtag模块读取到的寄存器数�?
 
-    logic [31:0] inst_idex, pc_idex;
-    logic [31:0] reg1_ex, reg2_ex, imm_ex;
-    logic [4:0]  rd_ex;
-    logic        reg_we_ex;
+    // input wire rib_hold_flag_i,                // 总线暂停标志
+    // input wire jtag_halt_flag_i,               // jtag暂停标志
+    // input wire jtag_reset_flag_i,              // jtag复位PC标志
 
-    logic        jump_flag_ex;
-    logic [31:0] jump_addr_ex;
-    logic [31:0] alu_result_ex;
-    logic [3:0]  mask_ex;
-    logic [31:0] wdata_ex;
+    // input wire[`INT_BUS] int_i                 // 中断信号
 
-    logic        reg_we_mem;
-    logic [4:0]  rd_mem;
-    logic [31:0] wdata_mem;
+    output logic [3:0]  perip_mask  //在ex中增加掩码�?�辑
 
-    // PC
-    pc_reg u_pc (
-        .clk(cpu_clk), .rst(cpu_rst), .jump_flag_i(jump_flag_ex),
-        .jump_addr_i(jump_addr_ex), .hold_flag_i(stall), .pc_o(pc_current)
     );
 
-    assign irom_addr = pc_current;
+    // pc_reg模块输出信号
+	wire[`InstAddrBus] pc_pc_o;
 
-    // IF/ID
-    if_id u_if_id (
-        .clk(cpu_clk), .rst(cpu_rst), .flush_i(jump_flag_ex), .hold_flag_i(stall),
-        .inst_i(irom_data), .inst_addr_i(pc_current), .inst_o(inst_ifid), .inst_addr_o(pc_ifid)
+    // if_id模块输出信号
+	wire[`InstBus] if_inst_o;
+    wire[`InstAddrBus] if_inst_addr_o;
+    wire[`INT_BUS] if_int_flag_o;
+
+    // id模块输出信号
+    wire[`RegAddrBus] id_reg1_raddr_o;
+    wire[`RegAddrBus] id_reg2_raddr_o;
+    wire[`InstBus] id_inst_o;
+    wire[`InstAddrBus] id_inst_addr_o;
+    wire[`RegBus] id_reg1_rdata_o;
+    wire[`RegBus] id_reg2_rdata_o;
+    wire id_reg_we_o;
+    wire[`RegAddrBus] id_reg_waddr_o;
+    // wire[`MemAddrBus] id_csr_raddr_o;
+    // wire id_csr_we_o;
+    // wire[`RegBus] id_csr_rdata_o;
+    // wire[`MemAddrBus] id_csr_waddr_o;
+    wire[`MemAddrBus] id_op1_o;
+    wire[`MemAddrBus] id_op2_o;
+    wire[`MemAddrBus] id_op1_jump_o;
+    wire[`MemAddrBus] id_op2_jump_o;
+
+    // id_ex模块输出信号
+    wire[`InstBus] ie_inst_o;
+    wire[`InstAddrBus] ie_inst_addr_o;
+    wire ie_reg_we_o;
+    wire[`RegAddrBus] ie_reg_waddr_o;
+    wire[`RegBus] ie_reg1_rdata_o;
+    wire[`RegBus] ie_reg2_rdata_o;
+    // wire ie_csr_we_o;
+    // wire[`MemAddrBus] ie_csr_waddr_o;
+    // wire[`RegBus] ie_csr_rdata_o;
+    wire[`MemAddrBus] ie_op1_o;
+    wire[`MemAddrBus] ie_op2_o;
+    wire[`MemAddrBus] ie_op1_jump_o;
+    wire[`MemAddrBus] ie_op2_jump_o;
+
+    // ex模块输出信号
+    wire[`MemBus] ex_mem_wdata_o;
+    wire[`MemAddrBus] ex_mem_raddr_o;
+    wire[`MemAddrBus] ex_mem_waddr_o;
+    wire ex_mem_we_o;
+    wire ex_mem_req_o;
+    wire[`RegBus] ex_reg_wdata_o;
+    wire ex_reg_we_o;
+    wire[`RegAddrBus] ex_reg_waddr_o;
+    wire ex_hold_flag_o;
+    wire ex_jump_flag_o;
+    wire[`InstAddrBus] ex_jump_addr_o;
+    wire ex_div_start_o;
+    wire[`RegBus] ex_div_dividend_o;
+    wire[`RegBus] ex_div_divisor_o;
+    wire[2:0] ex_div_op_o;
+    wire[`RegAddrBus] ex_div_reg_waddr_o;
+    // wire[`RegBus] ex_csr_wdata_o;
+    // wire ex_csr_we_o;
+    // wire[`MemAddrBus] ex_csr_waddr_o;
+
+    wire [1:0] ex_mem_mask_o;
+
+    // regs模块输出信号
+    wire[`RegBus] regs_rdata1_o;
+    wire[`RegBus] regs_rdata2_o;
+
+    // // csr_reg模块输出信号
+    // wire[`RegBus] csr_data_o;
+    // wire[`RegBus] csr_clint_data_o;
+    // wire csr_global_int_en_o;
+    // wire[`RegBus] csr_clint_csr_mtvec;
+    // wire[`RegBus] csr_clint_csr_mepc;
+    // wire[`RegBus] csr_clint_csr_mstatus;
+
+    // ctrl模块输出信号
+    wire[`Hold_Flag_Bus] ctrl_hold_flag_o;
+    wire ctrl_jump_flag_o;
+    wire[`InstAddrBus] ctrl_jump_addr_o;
+
+    // div模块输出信号
+    wire[`RegBus] div_result_o;
+	wire div_ready_o;
+    wire div_busy_o;
+    wire[`RegAddrBus] div_reg_waddr_o;
+
+    // // clint模块输出信号
+    // wire clint_we_o;
+    // wire[`MemAddrBus] clint_waddr_o;
+    // wire[`MemAddrBus] clint_raddr_o;
+    // wire[`RegBus] clint_data_o;
+    // wire[`InstAddrBus] clint_int_addr_o;
+    // wire clint_int_assert_o;
+    // wire clint_hold_flag_o;
+
+
+    assign perip_addr = (ex_mem_we_o == `WriteEnable)? ex_mem_waddr_o: ex_mem_raddr_o;
+    // assign rib_ex_data_o = ex_mem_wdata_o;
+    assign  perip_wdata = ex_mem_wdata_o;
+    // assign rib_ex_req_o = ex_mem_req_o;
+    // assign rib_ex_we_o = ex_mem_we_o;
+
+    assign irom_addr = pc_pc_o;
+
+    assign perip_wen = ex_mem_req_o && ex_mem_we_o;
+
+    assign perip_mask = ex_mem_mask_o;  // ex 输出�? 2 位掩�?
+
+    // pc_reg模块例化
+    pc_reg u_pc_reg(
+        .clk(clk),
+        .rst(rst),
+        // .jtag_reset_flag_i(jtag_reset_flag_i),
+        .pc_o(pc_pc_o),
+        .hold_flag_i(ctrl_hold_flag_o),
+        .jump_flag_i(ctrl_jump_flag_o),
+        .jump_addr_i(ctrl_jump_addr_o)
     );
 
-    // ID
-    id u_id (
-        .rst(cpu_rst), .inst_i(inst_ifid), .inst_addr_i(pc_ifid),
-        .rdata1_i(reg1_id), .rdata2_i(reg2_id),
-        .ex_rd_i(rd_ex), .ex_reg_we_i(reg_we_ex), .mem_rd_i(rd_mem), .mem_reg_we_i(reg_we_mem),
-        .rs1_o(rs1_id), .rs2_o(rs2_id), .rd_o(rd_id), .reg_we_o(reg_we_id),
-        .imm_o(imm_id), .reg1_o(reg1_id), .reg2_o(reg2_id),
-        .inst_o(inst_idex), .inst_addr_o(pc_idex), .stall_req_o(stall_id)
+    // ctrl模块例化
+    ctrl u_ctrl(
+        .rst(rst),
+        .jump_flag_i(ex_jump_flag_o),
+        .jump_addr_i(ex_jump_addr_o),
+        .hold_flag_ex_i(ex_hold_flag_o),
+        // .hold_flag_rib_i(rib_hold_flag_i),
+        .hold_flag_o(ctrl_hold_flag_o),
+        // .hold_flag_clint_i(clint_hold_flag_o),
+        .jump_flag_o(ctrl_jump_flag_o),
+        .jump_addr_o(ctrl_jump_addr_o)
+        // .jtag_halt_flag_i(jtag_halt_flag_i)
     );
 
-    assign stall = stall_id;
-
-    // Registers
-    regs u_regs (
-        .clk(cpu_clk), .rst(cpu_rst), .we_i(reg_we_mem),
-        .waddr_i(rd_mem), .wdata_i(wdata_mem),
-        .raddr1_i(rs1_id), .raddr2_i(rs2_id),
-        .rdata1_o(reg1_id), .rdata2_o(reg2_id)
+    // regs模块例化
+    regs u_regs(
+        .clk(clk),
+        .rst(rst),
+        .we_i(ex_reg_we_o),
+        .waddr_i(ex_reg_waddr_o),
+        .wdata_i(ex_reg_wdata_o),
+        .raddr1_i(id_reg1_raddr_o),
+        .rdata1_o(regs_rdata1_o),
+        .raddr2_i(id_reg2_raddr_o),
+        .rdata2_o(regs_rdata2_o)
+        // .jtag_we_i(jtag_reg_we_i),
+        // .jtag_addr_i(jtag_reg_addr_i),
+        // .jtag_data_i(jtag_reg_data_i),
+        // .jtag_data_o(jtag_reg_data_o)
     );
 
-    // ID/EX
-    id_ex u_id_ex (
-        .clk(cpu_clk), .rst(cpu_rst), .flush_i(jump_flag_ex),
-        .inst_i(inst_idex), .inst_addr_i(pc_idex), .reg1_i(reg1_id), .reg2_i(reg2_id),
-        .imm_i(imm_id), .rd_i(rd_id), .reg_we_i(reg_we_id),
-        .inst_o(inst_idex), .inst_addr_o(pc_idex), .reg1_o(reg1_ex), .reg2_o(reg2_ex),
-        .imm_o(imm_ex), .rd_o(rd_ex), .reg_we_o(reg_we_ex)
+    // // csr_reg模块例化
+    // csr_reg u_csr_reg(
+    //     .clk(clk),
+    //     .rst(rst),
+    //     .we_i(ex_csr_we_o),
+    //     .raddr_i(id_csr_raddr_o),
+    //     .waddr_i(ex_csr_waddr_o),
+    //     .data_i(ex_csr_wdata_o),
+    //     .data_o(csr_data_o),
+    //     .global_int_en_o(csr_global_int_en_o),
+    //     .clint_we_i(clint_we_o),
+    //     .clint_raddr_i(clint_raddr_o),
+    //     .clint_waddr_i(clint_waddr_o),
+    //     .clint_data_i(clint_data_o),
+    //     .clint_data_o(csr_clint_data_o),
+    //     .clint_csr_mtvec(csr_clint_csr_mtvec),
+    //     .clint_csr_mepc(csr_clint_csr_mepc),
+    //     .clint_csr_mstatus(csr_clint_csr_mstatus)
+    // );
+
+    // if_id模块例化
+    if_id u_if_id(
+        .clk(clk),
+        .rst(rst),
+        // .inst_i(rib_pc_data_i),
+        .inst_i(irom_data),
+        .inst_addr_i(pc_pc_o),
+        .int_flag_i(int_i),
+        .int_flag_o(if_int_flag_o),
+        .hold_flag_i(ctrl_hold_flag_o),
+        .inst_o(if_inst_o),
+        .inst_addr_o(if_inst_addr_o)
     );
 
-    // EX
-    ex u_ex (
-        .clk(cpu_clk), .rst(cpu_rst),
-        .inst_i(inst_idex), .inst_addr_i(pc_idex),
-        .reg1_i(reg1_ex), .reg2_i(reg2_ex), .imm_i(imm_ex),
-        .rd_i(rd_ex), .reg_we_i(reg_we_ex),
-        .jump_flag_o(jump_flag_ex), .jump_addr_o(jump_addr_ex),
-        .ex_result_o(alu_result_ex), .rd_o(rd_ex), .reg_we_o(reg_we_ex),
-        .mem_addr_o(perip_addr), .mem_wen_o(perip_wen), .mem_mask_o(perip_mask), .mem_wdata_o(perip_wdata),
-        .inst_o(inst_idex)
+    // id模块例化
+    id u_id(
+        .rst(rst),
+        .inst_i(if_inst_o),
+        .inst_addr_i(if_inst_addr_o),
+        .reg1_rdata_i(regs_rdata1_o),
+        .reg2_rdata_i(regs_rdata2_o),
+        .ex_jump_flag_i(ex_jump_flag_o),
+        .reg1_raddr_o(id_reg1_raddr_o),
+        .reg2_raddr_o(id_reg2_raddr_o),
+        .inst_o(id_inst_o),
+        .inst_addr_o(id_inst_addr_o),
+        .reg1_rdata_o(id_reg1_rdata_o),
+        .reg2_rdata_o(id_reg2_rdata_o),
+        .reg_we_o(id_reg_we_o),
+        .reg_waddr_o(id_reg_waddr_o),
+        .op1_o(id_op1_o),
+        .op2_o(id_op2_o),
+        .op1_jump_o(id_op1_jump_o),
+        .op2_jump_o(id_op2_jump_o)
+        // .csr_rdata_i(csr_data_o),
+        // .csr_raddr_o(id_csr_raddr_o),
+        // .csr_we_o(id_csr_we_o),
+        // .csr_rdata_o(id_csr_rdata_o),
+        // .csr_waddr_o(id_csr_waddr_o)
     );
 
-    // MEM
-    mem u_mem (
-        .clk(cpu_clk), .rst(cpu_rst),
-        .inst_i(inst_idex), .rd_i(rd_ex), .reg_we_i(reg_we_ex),
-        .ex_result_i(alu_result_ex), .mem_addr_i(perip_addr), .mem_wen_i(perip_wen),
-        .mem_mask_i(perip_mask), .mem_wdata_i(perip_wdata), .perip_rdata(perip_rdata),
-        .perip_addr(), .perip_wen(), .perip_mask(), .perip_wdata(),
-        .reg_we_o(reg_we_mem), .reg_waddr_o(rd_mem), .reg_wdata_o(wdata_mem)
+    // id_ex模块例化
+    id_ex u_id_ex(
+        .clk(clk),
+        .rst(rst),
+        .inst_i(id_inst_o),
+        .inst_addr_i(id_inst_addr_o),
+        .reg_we_i(id_reg_we_o),
+        .reg_waddr_i(id_reg_waddr_o),
+        .reg1_rdata_i(id_reg1_rdata_o),
+        .reg2_rdata_i(id_reg2_rdata_o),
+        .hold_flag_i(ctrl_hold_flag_o),
+        .inst_o(ie_inst_o),
+        .inst_addr_o(ie_inst_addr_o),
+        .reg_we_o(ie_reg_we_o),
+        .reg_waddr_o(ie_reg_waddr_o),
+        .reg1_rdata_o(ie_reg1_rdata_o),
+        .reg2_rdata_o(ie_reg2_rdata_o),
+        .op1_i(id_op1_o),
+        .op2_i(id_op2_o),
+        .op1_jump_i(id_op1_jump_o),
+        .op2_jump_i(id_op2_jump_o),
+        .op1_o(ie_op1_o),
+        .op2_o(ie_op2_o),
+        .op1_jump_o(ie_op1_jump_o),
+        .op2_jump_o(ie_op2_jump_o)
+        // .csr_we_i(id_csr_we_o),
+        // .csr_waddr_i(id_csr_waddr_o),
+        // .csr_rdata_i(id_csr_rdata_o),
+        // .csr_we_o(ie_csr_we_o),
+        // .csr_waddr_o(ie_csr_waddr_o),
+        // .csr_rdata_o(ie_csr_rdata_o)
     );
+
+    // ex模块例化
+    ex u_ex(
+        .rst(rst),
+        .inst_i(ie_inst_o),
+        .inst_addr_i(ie_inst_addr_o),
+        .reg_we_i(ie_reg_we_o),
+        .reg_waddr_i(ie_reg_waddr_o),
+        .reg1_rdata_i(ie_reg1_rdata_o),
+        .reg2_rdata_i(ie_reg2_rdata_o),
+        .op1_i(ie_op1_o),
+        .op2_i(ie_op2_o),
+        .op1_jump_i(ie_op1_jump_o),
+        .op2_jump_i(ie_op2_jump_o),
+        // .mem_rdata_i(rib_ex_data_i),
+        .mem_rdata_i(perip_rdata),
+        .mem_mask_o(ex_mem_mask_o),
+
+        .mem_wdata_o(ex_mem_wdata_o),
+        .mem_raddr_o(ex_mem_raddr_o),
+        .mem_waddr_o(ex_mem_waddr_o),
+        .mem_we_o(ex_mem_we_o),
+        .mem_req_o(ex_mem_req_o),
+        .reg_wdata_o(ex_reg_wdata_o),
+        .reg_we_o(ex_reg_we_o),
+        .reg_waddr_o(ex_reg_waddr_o),
+        .hold_flag_o(ex_hold_flag_o),
+        .jump_flag_o(ex_jump_flag_o),
+        .jump_addr_o(ex_jump_addr_o),
+        // .int_assert_i(clint_int_assert_o),
+        // .int_addr_i(clint_int_addr_o),
+        .int_assert_i(`INT_DEASSERT),
+        .int_addr_i(`ZeroWord),
+
+        .div_ready_i(div_ready_o),
+        .div_result_i(div_result_o),
+        .div_busy_i(div_busy_o),
+        .div_reg_waddr_i(div_reg_waddr_o),
+        .div_start_o(ex_div_start_o),
+        .div_dividend_o(ex_div_dividend_o),
+        .div_divisor_o(ex_div_divisor_o),
+        .div_op_o(ex_div_op_o),
+        .div_reg_waddr_o(ex_div_reg_waddr_o)
+        // .csr_we_i(ie_csr_we_o),
+        // .csr_waddr_i(ie_csr_waddr_o),
+        // .csr_rdata_i(ie_csr_rdata_o),
+        // .csr_wdata_o(ex_csr_wdata_o),
+        // .csr_we_o(ex_csr_we_o),
+        // .csr_waddr_o(ex_csr_waddr_o)
+    );
+
+    // div模块例化
+    div u_div(
+        .clk(clk),
+        .rst(rst),
+        .dividend_i(ex_div_dividend_o),
+        .divisor_i(ex_div_divisor_o),
+        .start_i(ex_div_start_o),
+        .op_i(ex_div_op_o),
+        .reg_waddr_i(ex_div_reg_waddr_o),
+        .result_o(div_result_o),
+        .ready_o(div_ready_o),
+        .busy_o(div_busy_o),
+        .reg_waddr_o(div_reg_waddr_o)
+    );
+
+    // // clint模块例化
+    // clint u_clint(
+    //     .clk(clk),
+    //     .rst(rst),
+    //     .int_flag_i(if_int_flag_o),
+    //     .inst_i(id_inst_o),
+    //     .inst_addr_i(id_inst_addr_o),
+    //     .jump_flag_i(ex_jump_flag_o),
+    //     .jump_addr_i(ex_jump_addr_o),
+    //     .hold_flag_i(ctrl_hold_flag_o),
+    //     .div_started_i(ex_div_start_o),
+    //     .data_i(csr_clint_data_o),
+    //     .csr_mtvec(csr_clint_csr_mtvec),
+    //     .csr_mepc(csr_clint_csr_mepc),
+    //     .csr_mstatus(csr_clint_csr_mstatus),
+    //     .we_o(clint_we_o),
+    //     .waddr_o(clint_waddr_o),
+    //     .raddr_o(clint_raddr_o),
+    //     .data_o(clint_data_o),
+    //     .hold_flag_o(clint_hold_flag_o),
+    //     .global_int_en_i(csr_global_int_en_o),
+    //     .int_addr_o(clint_int_addr_o),
+    //     .int_assert_o(clint_int_assert_o)
+    // );
+
 
 endmodule

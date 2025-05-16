@@ -2,7 +2,7 @@
 `include "defines.v"
 
 // 执行模块
-// 纯组合逻辑电路
+// 纯组合�?�辑电路
 module ex(
 
     input wire rst,
@@ -10,13 +10,13 @@ module ex(
     // from id
     input wire[`InstBus] inst_i,            // 指令内容
     input wire[`InstAddrBus] inst_addr_i,   // 指令地址
-    input wire reg_we_i,                    // 是否写通用寄存器
-    input wire[`RegAddrBus] reg_waddr_i,    // 写通用寄存器地址
-    input wire[`RegBus] reg1_rdata_i,       // 通用寄存器1输入数据
-    input wire[`RegBus] reg2_rdata_i,       // 通用寄存器2输入数据
-    // input wire csr_we_i,                    // 是否写CSR寄存器
-    // input wire[`MemAddrBus] csr_waddr_i,    // 写CSR寄存器地址
-    // input wire[`RegBus] csr_rdata_i,        // CSR寄存器输入数据
+    input wire reg_we_i,                    // 是否写�?�用寄存�?
+    input wire[`RegAddrBus] reg_waddr_i,    // 写�?�用寄存器地�?
+    input wire[`RegBus] reg1_rdata_i,       // 通用寄存�?1输入数据
+    input wire[`RegBus] reg2_rdata_i,       // 通用寄存�?2输入数据
+    // input wire csr_we_i,                    // 是否写CSR寄存�?
+    // input wire[`MemAddrBus] csr_waddr_i,    // 写CSR寄存器地�?
+    // input wire[`RegBus] csr_rdata_i,        // CSR寄存器输入数�?
     input wire int_assert_i,                // 中断发生标志
     input wire[`InstAddrBus] int_addr_i,    // 中断跳转地址
     input wire[`MemAddrBus] op1_i,
@@ -30,39 +30,39 @@ module ex(
     // from div
     input wire div_ready_i,                 // 除法运算完成标志
     input wire[`RegBus] div_result_i,       // 除法运算结果
-    input wire div_busy_i,                  // 除法运算忙标志
-    input wire[`RegAddrBus] div_reg_waddr_i,// 除法运算结束后要写的寄存器地址
+    input wire div_busy_i,                  // 除法运算忙标�?
+    input wire[`RegAddrBus] div_reg_waddr_i,// 除法运算结束后要写的寄存器地�?
 
     // to mem
-    output reg[`MemBus] mem_wdata_o,        // 写内存数据
-    output reg[`MemAddrBus] mem_raddr_o,    // 读内存地址
-    output reg[`MemAddrBus] mem_waddr_o,    // 写内存地址
+    output reg[`MemBus] mem_wdata_o,        // 写内存数�?
+    output reg[`MemAddrBus] mem_raddr_o,    // 读内存地�?
+    output reg[`MemAddrBus] mem_waddr_o,    // 写内存地�?
     output wire mem_we_o,                   // 是否要写内存
     output wire mem_req_o,                  // 请求访问内存标志
 
     // to regs
     output wire[`RegBus] reg_wdata_o,       // 写寄存器数据
-    output wire reg_we_o,                   // 是否要写通用寄存器
-    output wire[`RegAddrBus] reg_waddr_o,   // 写通用寄存器地址
+    output wire reg_we_o,                   // 是否要写通用寄存�?
+    output wire[`RegAddrBus] reg_waddr_o,   // 写�?�用寄存器地�?
 
     // // to csr reg
-    // output reg[`RegBus] csr_wdata_o,        // 写CSR寄存器数据
-    // output wire csr_we_o,                   // 是否要写CSR寄存器
-    // output wire[`MemAddrBus] csr_waddr_o,   // 写CSR寄存器地址
+    // output reg[`RegBus] csr_wdata_o,        // 写CSR寄存器数�?
+    // output wire csr_we_o,                   // 是否要写CSR寄存�?
+    // output wire[`MemAddrBus] csr_waddr_o,   // 写CSR寄存器地�?
 
     // to div
-    output wire div_start_o,                // 开始除法运算标志
-    output reg[`RegBus] div_dividend_o,     // 被除数
+    output wire div_start_o,                // �?始除法运算标�?
+    output reg[`RegBus] div_dividend_o,     // 被除�?
     output reg[`RegBus] div_divisor_o,      // 除数
-    output reg[2:0] div_op_o,               // 具体是哪一条除法指令
-    output reg[`RegAddrBus] div_reg_waddr_o,// 除法运算结束后要写的寄存器地址
+    output reg[2:0] div_op_o,               // 具体是哪�?条除法指�?
+    output reg[`RegAddrBus] div_reg_waddr_o,// 除法运算结束后要写的寄存器地�?
 
     // to ctrl
     output wire hold_flag_o,                // 是否暂停标志
     output wire jump_flag_o,                // 是否跳转标志
-    output wire[`InstAddrBus] jump_addr_o   // 跳转目的地址
+    output wire[`InstAddrBus] jump_addr_o,   // 跳转目的地址
 
-    output reg [1:0] mem_mask_o,  // 写掩码
+    output reg [1:0] mem_mask_o  // 写掩�?
 
     );
 
@@ -136,23 +136,23 @@ module ex(
     assign div_start_o = (int_assert_i == `INT_ASSERT)? `DivStop: div_start;
 
     assign reg_wdata_o = reg_wdata | div_wdata;
-    // 响应中断时不写通用寄存器
+    // 响应中断时不写�?�用寄存�?
     assign reg_we_o = (int_assert_i == `INT_ASSERT)? `WriteDisable: (reg_we || div_we);
     assign reg_waddr_o = reg_waddr | div_waddr;
 
-    // 响应中断时不写内存
+    // 响应中断时不写内�?
     assign mem_we_o = (int_assert_i == `INT_ASSERT)? `WriteDisable: mem_we;
 
-    // 响应中断时不向总线请求访问内存
+    // 响应中断时不向�?�线请求访问内存
     assign mem_req_o = (int_assert_i == `INT_ASSERT)? `RIB_NREQ: mem_req;
 
     assign hold_flag_o = hold_flag || div_hold_flag;
     assign jump_flag_o = jump_flag || div_jump_flag || ((int_assert_i == `INT_ASSERT)? `JumpEnable: `JumpDisable);
     assign jump_addr_o = (int_assert_i == `INT_ASSERT)? int_addr_i: (jump_addr | div_jump_addr);
 
-    // // 响应中断时不写CSR寄存器
-    assign csr_we_o = (int_assert_i == `INT_ASSERT)? `WriteDisable: csr_we_i;
-    assign csr_waddr_o = csr_waddr_i;
+    // // // 响应中断时不写CSR寄存�?
+    // assign csr_we_o = (int_assert_i == `INT_ASSERT)? `WriteDisable: csr_we_i;
+    // assign csr_waddr_o = csr_waddr_i;
 
 
     // 处理乘法指令

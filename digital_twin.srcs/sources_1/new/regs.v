@@ -2,7 +2,7 @@
 
 `include "defines.v"
 
-// 通用寄存器模块
+// 通用寄存器模�?
 module regs(
 
     input wire clk,
@@ -15,7 +15,7 @@ module regs(
 
     // // from jtag
     // input wire jtag_we_i,                 // 写寄存器标志
-    // input wire[`RegAddrBus] jtag_addr_i,  // 读、写寄存器地址
+    // input wire[`RegAddrBus] jtag_addr_i,  // 读�?�写寄存器地�?
     // input wire[`RegBus] jtag_data_i,      // 写寄存器数据
 
     // from id
@@ -28,7 +28,7 @@ module regs(
     input wire[`RegAddrBus] raddr2_i,     // 读寄存器2地址
 
     // to id
-    output reg[`RegBus] rdata2_o,         // 读寄存器2数据
+    output reg[`RegBus] rdata2_o         // 读寄存器2数据
 
     // // to jtag
     // output reg[`RegBus] jtag_data_o       // 读寄存器数据
@@ -40,7 +40,7 @@ module regs(
     // 写寄存器
     always @ (posedge clk) begin
         if (rst == `RstDisable) begin
-            // 优先ex模块写操作
+            // 优先ex模块写操�?
             if ((we_i == `WriteEnable) && (waddr_i != `ZeroReg)) begin
                 regs[waddr_i] <= wdata_i;
             end 
@@ -54,7 +54,7 @@ module regs(
     always @ (*) begin
         if (raddr1_i == `ZeroReg) begin
             rdata1_o = `ZeroWord;
-        // 如果读地址等于写地址，并且正在写操作，则直接返回写数据
+        // 如果读地�?等于写地�?，并且正在写操作，则直接返回写数�?
         end else if (raddr1_i == waddr_i && we_i == `WriteEnable) begin
             rdata1_o = wdata_i;
         end else begin
@@ -66,7 +66,7 @@ module regs(
     always @ (*) begin
         if (raddr2_i == `ZeroReg) begin
             rdata2_o = `ZeroWord;
-        // 如果读地址等于写地址，并且正在写操作，则直接返回写数据
+        // 如果读地�?等于写地�?，并且正在写操作，则直接返回写数�?
         end else if (raddr2_i == waddr_i && we_i == `WriteEnable) begin
             rdata2_o = wdata_i;
         end else begin
