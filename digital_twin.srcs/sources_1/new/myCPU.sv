@@ -5,26 +5,26 @@ module myCPU(
     input wire cpu_clk,
     input wire cpu_rst,
 
-    // output wire[`MemAddrBus] rib_ex_addr_o,    // 读�?�写外设的地�??
+    // output wire[`MemAddrBus] rib_ex_addr_o,    // 读�?�写外设的地�??
     output wire[`MemAddrBus] perip_addr,       
     // input wire[`MemBus] rib_ex_data_i,         // 从外设读取的数据
     input wire[`MemBus] perip_rdata,          
-    // output wire[`MemBus] rib_ex_data_o,        // 写入外设的数�??
+    // output wire[`MemBus] rib_ex_data_o,        // 写入外设的数�??
     output wire[`MemBus] perip_wdata,
 
     // output wire rib_ex_req_o,                  // 访问外设请求
-    // output wire rib_ex_we_o,                   // 写外设标�??
+    // output wire rib_ex_we_o,                   // 写外设标�??
     output wire perip_wen,
 
     // output wire[`MemAddrBus] rib_pc_addr_o,    // 取指地址
     output wire[`MemAddrBus] irom_addr,
-    // input wire[`MemBus] rib_pc_data_i,         // 取到的指令内�??
+    // input wire[`MemBus] rib_pc_data_i,         // 取到的指令内�??
     input wire[`MemBus] irom_data,
 
     // input wire[`RegAddrBus] jtag_reg_addr_i,   // jtag模块读�?�写寄存器的地址
     // input wire[`RegBus] jtag_reg_data_i,       // jtag模块写寄存器数据
     // input wire jtag_reg_we_i,                  // jtag模块写寄存器标志
-    // output wire[`RegBus] jtag_reg_data_o,      // jtag模块读取到的寄存器数�??
+    // output wire[`RegBus] jtag_reg_data_o,      // jtag模块读取到的寄存器数�??
 
     // input wire rib_hold_flag_i,                // 总线暂停标志
     // input wire jtag_halt_flag_i,               // jtag暂停标志
@@ -32,9 +32,23 @@ module myCPU(
 
     // input wire[`INT_BUS] int_i                 // 中断信号
 
-    output logic [3:0]  perip_mask  //在ex中增加掩码�?�辑
+    output logic [1:0]  perip_mask,  //在ex中增加掩码�?�辑
+
+    // Debug Interface
+    output logic         debug_wb_have_inst,
+    output logic [31:0]  debug_wb_pc,
+    output logic         debug_wb_ena,
+    output logic [ 4:0]  debug_wb_reg,
+    output logic [31:0]  debug_wb_value
 
     );
+
+    assign debug_wb_have_inst = (ie_inst_o != `INST_NOP);          // ex是否有效
+    assign debug_wb_pc        = ie_inst_addr_o;    // 写回指令的 PC
+    assign debug_wb_ena       = ex_reg_we_o;       // 写使能
+    assign debug_wb_reg       = ex_reg_waddr_o;    // 写寄存器编号
+    assign debug_wb_value     = ex_reg_wdata_o;    // 写入的数据
+
 
     // pc_reg模块输出信号
 	wire[`InstAddrBus] pc_pc_o;
@@ -143,7 +157,7 @@ module myCPU(
 
     assign perip_wen = ex_mem_req_o && ex_mem_we_o;
 
-    assign perip_mask = ex_mem_mask_o;  // ex 输出�?? 2 位掩�??
+    assign perip_mask = ex_mem_mask_o;  // ex 输出�?? 2 位掩�??
 
     // pc_reg模块例化
     pc_reg u_pc_reg(

@@ -89,7 +89,7 @@ OPTRACE "Adding files" START { }
 add_files C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/imports/test_src/dram.coe
 add_files C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/imports/test_src/irom.coe
 add_files C:/Users/xy/Desktop/PRO/resource/src/coe/irom.coe
-add_files c:/Users/xy/Desktop/PRO/resource/src/coe/dram.coe
+add_files C:/Users/xy/Desktop/PRO/resource/src/coe/dram.coe
 read_verilog -library xil_defaultlib -sv {
   C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/counter.sv
   C:/Users/xy/Desktop/PRO/resource/JYD2025_Contest-Template/digital_twin.srcs/sources_1/new/display_seg.sv

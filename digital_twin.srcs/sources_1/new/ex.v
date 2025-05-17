@@ -671,7 +671,7 @@ module ex(
                         end
                     end
                     `INST_SW: begin
-                        mem_mask_o = 2'b11;
+                        mem_mask_o = 2'b10;
 
                         jump_flag = `JumpDisable;
                         hold_flag = `HoldDisable;
