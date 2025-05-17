@@ -62,7 +62,7 @@ module ex(
     output wire jump_flag_o,                // 是否跳转标志
     output wire[`InstAddrBus] jump_addr_o,   // 跳转目的地址
 
-    output reg [1:0] mem_mask_o  // 写掩�?
+    output reg [1:0] mem_mask  // 写掩�?
 
     );
 
@@ -238,7 +238,7 @@ module ex(
         mem_req = `RIB_NREQ;
         // csr_wdata_o = `ZeroWord;
 
-        mem_mask_o = 2'b00;
+        mem_mask = 2'b00;
 
         case (opcode)
             `INST_TYPE_I: begin
@@ -525,6 +525,8 @@ module ex(
             `INST_TYPE_L: begin
                 case (funct3)
                     `INST_LB: begin
+                        mem_mask = 2'b00;
+
                         jump_flag = `JumpDisable;
                         hold_flag = `HoldDisable;
                         jump_addr = `ZeroWord;
@@ -533,22 +535,25 @@ module ex(
                         mem_we = `WriteDisable;
                         mem_req = `RIB_REQ;
                         mem_raddr_o = op1_add_op2_res;
-                        case (mem_raddr_index)
-                            2'b00: begin
-                                reg_wdata = {{24{mem_rdata_i[7]}}, mem_rdata_i[7:0]};
-                            end
-                            2'b01: begin
-                                reg_wdata = {{24{mem_rdata_i[15]}}, mem_rdata_i[15:8]};
-                            end
-                            2'b10: begin
-                                reg_wdata = {{24{mem_rdata_i[23]}}, mem_rdata_i[23:16]};
-                            end
-                            default: begin
-                                reg_wdata = {{24{mem_rdata_i[31]}}, mem_rdata_i[31:24]};
-                            end
-                        endcase
+                        // case (mem_raddr_index)
+                        //     2'b00: begin
+                        //         reg_wdata = {{24{mem_rdata_i[7]}}, mem_rdata_i[7:0]};
+                        //     end
+                        //     2'b01: begin
+                        //         reg_wdata = {{24{mem_rdata_i[15]}}, mem_rdata_i[15:8]};
+                        //     end
+                        //     2'b10: begin
+                        //         reg_wdata = {{24{mem_rdata_i[23]}}, mem_rdata_i[23:16]};
+                        //     end
+                        //     default: begin
+                        //         reg_wdata = {{24{mem_rdata_i[31]}}, mem_rdata_i[31:24]};
+                        //     end
+                        // endcase
+                        reg_wdata = mem_rdata_i;
                     end
                     `INST_LH: begin
+                        mem_mask = 2'b01;
+
                         jump_flag = `JumpDisable;
                         hold_flag = `HoldDisable;
                         jump_addr = `ZeroWord;
@@ -557,13 +562,16 @@ module ex(
                         mem_we = `WriteDisable;
                         mem_req = `RIB_REQ;
                         mem_raddr_o = op1_add_op2_res;
-                        if (mem_raddr_index == 2'b0) begin
-                            reg_wdata = {{16{mem_rdata_i[15]}}, mem_rdata_i[15:0]};
-                        end else begin
-                            reg_wdata = {{16{mem_rdata_i[31]}}, mem_rdata_i[31:16]};
-                        end
+                        // if (mem_raddr_index == 2'b0) begin
+                        //     reg_wdata = {{16{mem_rdata_i[15]}}, mem_rdata_i[15:0]};
+                        // end else begin
+                        //     reg_wdata = {{16{mem_rdata_i[31]}}, mem_rdata_i[31:16]};
+                        // end
+                        reg_wdata = mem_rdata_i;
                     end
                     `INST_LW: begin
+                        mem_mask = 2'b10;
+
                         jump_flag = `JumpDisable;
                         hold_flag = `HoldDisable;
                         jump_addr = `ZeroWord;
@@ -575,6 +583,8 @@ module ex(
                         reg_wdata = mem_rdata_i;
                     end
                     `INST_LBU: begin
+                        mem_mask = 2'b00;
+
                         jump_flag = `JumpDisable;
                         hold_flag = `HoldDisable;
                         jump_addr = `ZeroWord;
@@ -583,22 +593,25 @@ module ex(
                         mem_we = `WriteDisable;
                         mem_req = `RIB_REQ;
                         mem_raddr_o = op1_add_op2_res;
-                        case (mem_raddr_index)
-                            2'b00: begin
-                                reg_wdata = {24'h0, mem_rdata_i[7:0]};
-                            end
-                            2'b01: begin
-                                reg_wdata = {24'h0, mem_rdata_i[15:8]};
-                            end
-                            2'b10: begin
-                                reg_wdata = {24'h0, mem_rdata_i[23:16]};
-                            end
-                            default: begin
-                                reg_wdata = {24'h0, mem_rdata_i[31:24]};
-                            end
-                        endcase
+                        // case (mem_raddr_index)
+                        //     2'b00: begin
+                        //         reg_wdata = {24'h0, mem_rdata_i[7:0]};
+                        //     end
+                        //     2'b01: begin
+                        //         reg_wdata = {24'h0, mem_rdata_i[15:8]};
+                        //     end
+                        //     2'b10: begin
+                        //         reg_wdata = {24'h0, mem_rdata_i[23:16]};
+                        //     end
+                        //     default: begin
+                        //         reg_wdata = {24'h0, mem_rdata_i[31:24]};
+                        //     end
+                        // endcase
+                        reg_wdata = mem_rdata_i;
                     end
                     `INST_LHU: begin
+                        mem_mask = 2'b01;
+
                         jump_flag = `JumpDisable;
                         hold_flag = `HoldDisable;
                         jump_addr = `ZeroWord;
@@ -607,11 +620,12 @@ module ex(
                         mem_we = `WriteDisable;
                         mem_req = `RIB_REQ;
                         mem_raddr_o = op1_add_op2_res;
-                        if (mem_raddr_index == 2'b0) begin
-                            reg_wdata = {16'h0, mem_rdata_i[15:0]};
-                        end else begin
-                            reg_wdata = {16'h0, mem_rdata_i[31:16]};
-                        end
+                        // if (mem_raddr_index == 2'b0) begin
+                        //     reg_wdata = {16'h0, mem_rdata_i[15:0]};
+                        // end else begin
+                        //     reg_wdata = {16'h0, mem_rdata_i[31:16]};
+                        // end
+                        reg_wdata = mem_rdata_i;
                     end
                     default: begin
                         jump_flag = `JumpDisable;
@@ -628,7 +642,7 @@ module ex(
             `INST_TYPE_S: begin
                 case (funct3)
                     `INST_SB: begin
-                        mem_mask_o = 2'b01;
+                        mem_mask = 2'b00;
 
                         jump_flag = `JumpDisable;
                         hold_flag = `HoldDisable;
@@ -638,23 +652,24 @@ module ex(
                         mem_req = `RIB_REQ;
                         mem_waddr_o = op1_add_op2_res;
                         mem_raddr_o = op1_add_op2_res;
-                        case (mem_waddr_index)
-                            2'b00: begin
-                                mem_wdata_o = {mem_rdata_i[31:8], reg2_rdata_i[7:0]};
-                            end
-                            2'b01: begin
-                                mem_wdata_o = {mem_rdata_i[31:16], reg2_rdata_i[7:0], mem_rdata_i[7:0]};
-                            end
-                            2'b10: begin
-                                mem_wdata_o = {mem_rdata_i[31:24], reg2_rdata_i[7:0], mem_rdata_i[15:0]};
-                            end
-                            default: begin
-                                mem_wdata_o = {reg2_rdata_i[7:0], mem_rdata_i[23:0]};
-                            end
-                        endcase
+                        // case (mem_waddr_index)
+                        //     2'b00: begin
+                        //         mem_wdata_o = {mem_rdata_i[31:8], reg2_rdata_i[7:0]};
+                        //     end
+                        //     2'b01: begin
+                        //         mem_wdata_o = {mem_rdata_i[31:16], reg2_rdata_i[7:0], mem_rdata_i[7:0]};
+                        //     end
+                        //     2'b10: begin
+                        //         mem_wdata_o = {mem_rdata_i[31:24], reg2_rdata_i[7:0], mem_rdata_i[15:0]};
+                        //     end
+                        //     default: begin
+                        //         mem_wdata_o = {reg2_rdata_i[7:0], mem_rdata_i[23:0]};
+                        //     end
+                        // endcase
+                        mem_wdata_o = reg2_rdata_i;
                     end
                     `INST_SH: begin
-                        mem_mask_o = 2'b10;
+                        mem_mask = 2'b01;
 
                         jump_flag = `JumpDisable;
                         hold_flag = `HoldDisable;
@@ -664,14 +679,15 @@ module ex(
                         mem_req = `RIB_REQ;
                         mem_waddr_o = op1_add_op2_res;
                         mem_raddr_o = op1_add_op2_res;
-                        if (mem_waddr_index == 2'b00) begin
-                            mem_wdata_o = {mem_rdata_i[31:16], reg2_rdata_i[15:0]};
-                        end else begin
-                            mem_wdata_o = {reg2_rdata_i[15:0], mem_rdata_i[15:0]};
-                        end
+                        // if (mem_waddr_index == 2'b00) begin
+                        //     mem_wdata_o = {mem_rdata_i[31:16], reg2_rdata_i[15:0]};
+                        // end else begin
+                        //     mem_wdata_o = {reg2_rdata_i[15:0], mem_rdata_i[15:0]};
+                        // end
+                        mem_wdata_o = reg2_rdata_i;
                     end
                     `INST_SW: begin
-                        mem_mask_o = 2'b10;
+                        mem_mask = 2'b10;
 
                         jump_flag = `JumpDisable;
                         hold_flag = `HoldDisable;

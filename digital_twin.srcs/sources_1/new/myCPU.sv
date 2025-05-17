@@ -112,7 +112,7 @@ module myCPU(
     // wire ex_csr_we_o;
     // wire[`MemAddrBus] ex_csr_waddr_o;
 
-    wire [1:0] ex_mem_mask_o;
+    wire [1:0] ex_mem_mask;
 
     // regs模块输出信号
     wire[`RegBus] regs_rdata1_o;
@@ -149,7 +149,7 @@ module myCPU(
 
     assign perip_addr = (ex_mem_we_o == `WriteEnable)? ex_mem_waddr_o: ex_mem_raddr_o;
     // assign rib_ex_data_o = ex_mem_wdata_o;
-    assign  perip_wdata = ex_mem_wdata_o;
+    assign perip_wdata = ex_mem_wdata_o;
     // assign rib_ex_req_o = ex_mem_req_o;
     // assign rib_ex_we_o = ex_mem_we_o;
 
@@ -157,12 +157,12 @@ module myCPU(
 
     assign perip_wen = ex_mem_req_o && ex_mem_we_o;
 
-    assign perip_mask = ex_mem_mask_o;  // ex 输出�?? 2 位掩�??
+    assign perip_mask = ex_mem_mask;  // ex �?? 2 位掩�??
 
     // pc_reg模块例化
     pc_reg u_pc_reg(
         .clk(cpu_clk),
-        .rst(cpu_rst),
+        .rst(~cpu_rst),
         // .jtag_reset_flag_i(jtag_reset_flag_i),
         .pc_o(pc_pc_o),
         .hold_flag_i(ctrl_hold_flag_o),
@@ -172,7 +172,7 @@ module myCPU(
 
     // ctrl模块例化
     ctrl u_ctrl(
-        .rst(cpu_rst),
+        .rst(~cpu_rst),
         .jump_flag_i(ex_jump_flag_o),
         .jump_addr_i(ex_jump_addr_o),
         .hold_flag_ex_i(ex_hold_flag_o),
@@ -187,7 +187,7 @@ module myCPU(
     // regs模块例化
     regs u_regs(
         .clk(cpu_clk),
-        .rst(cpu_rst),
+        .rst(~cpu_rst),
         .we_i(ex_reg_we_o),
         .waddr_i(ex_reg_waddr_o),
         .wdata_i(ex_reg_wdata_o),
@@ -204,7 +204,7 @@ module myCPU(
     // // csr_reg模块例化
     // csr_reg u_csr_reg(
     //     .clk(cpu_clk),
-    //     .rst(cpu_rst),
+    //     .rst(~cpu_rst),
     //     .we_i(ex_csr_we_o),
     //     .raddr_i(id_csr_raddr_o),
     //     .waddr_i(ex_csr_waddr_o),
@@ -224,7 +224,7 @@ module myCPU(
     // if_id模块例化
     if_id u_if_id(
         .clk(cpu_clk),
-        .rst(cpu_rst),
+        .rst(~cpu_rst),
         // .inst_i(rib_pc_data_i),
         .inst_i(irom_data),
         .inst_addr_i(pc_pc_o),
@@ -237,7 +237,7 @@ module myCPU(
 
     // id模块例化
     id u_id(
-        .rst(cpu_rst),
+        .rst(~cpu_rst),
         .inst_i(if_inst_o),
         .inst_addr_i(if_inst_addr_o),
         .reg1_rdata_i(regs_rdata1_o),
@@ -265,7 +265,7 @@ module myCPU(
     // id_ex模块例化
     id_ex u_id_ex(
         .clk(cpu_clk),
-        .rst(cpu_rst),
+        .rst(~cpu_rst),
         .inst_i(id_inst_o),
         .inst_addr_i(id_inst_addr_o),
         .reg_we_i(id_reg_we_o),
@@ -297,7 +297,7 @@ module myCPU(
 
     // ex模块例化
     ex u_ex(
-        .rst(cpu_rst),
+        .rst(~cpu_rst),
         .inst_i(ie_inst_o),
         .inst_addr_i(ie_inst_addr_o),
         .reg_we_i(ie_reg_we_o),
@@ -310,7 +310,7 @@ module myCPU(
         .op2_jump_i(ie_op2_jump_o),
         // .mem_rdata_i(rib_ex_data_i),
         .mem_rdata_i(perip_rdata),
-        .mem_mask_o(ex_mem_mask_o),
+        .mem_mask(ex_mem_mask),
 
         .mem_wdata_o(ex_mem_wdata_o),
         .mem_raddr_o(ex_mem_raddr_o),
@@ -348,7 +348,7 @@ module myCPU(
     // div模块例化
     div u_div(
         .clk(cpu_clk),
-        .rst(cpu_rst),
+        .rst(~cpu_rst),
         .dividend_i(ex_div_dividend_o),
         .divisor_i(ex_div_divisor_o),
         .start_i(ex_div_start_o),
@@ -363,7 +363,7 @@ module myCPU(
     // // clint模块例化
     // clint u_clint(
     //     .clk(cpu_clk),
-    //     .rst(cpu_rst),
+    //     .rst(~cpu_rst),
     //     .int_flag_i(if_int_flag_o),
     //     .inst_i(id_inst_o),
     //     .inst_addr_i(id_inst_addr_o),

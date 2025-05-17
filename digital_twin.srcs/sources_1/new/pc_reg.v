@@ -22,7 +22,8 @@ module pc_reg(
         // if (rst == `RstEnable || jtag_reset_flag_i == 1'b1) begin
         //     pc_o <= `CpuResetAddr;
         if (rst == `RstEnable) begin
-            pc_o <= `CpuResetAddr;
+            // pc_o <= `CpuResetAddr;
+            pc_o <= 32'h80000000;
 
         // 跳转
         end else if (jump_flag_i == `JumpEnable) begin
