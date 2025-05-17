@@ -537,7 +537,7 @@ module ex(
                         mem_raddr_o = op1_add_op2_res;
                         // case (mem_raddr_index)
                         //     2'b00: begin
-                        //         reg_wdata = {{24{mem_rdata_i[7]}}, mem_rdata_i[7:0]};
+                                reg_wdata = {{24{mem_rdata_i[7]}}, mem_rdata_i[7:0]};
                         //     end
                         //     2'b01: begin
                         //         reg_wdata = {{24{mem_rdata_i[15]}}, mem_rdata_i[15:8]};
@@ -549,7 +549,6 @@ module ex(
                         //         reg_wdata = {{24{mem_rdata_i[31]}}, mem_rdata_i[31:24]};
                         //     end
                         // endcase
-                        reg_wdata = mem_rdata_i;
                     end
                     `INST_LH: begin
                         mem_mask = 2'b01;
@@ -563,11 +562,10 @@ module ex(
                         mem_req = `RIB_REQ;
                         mem_raddr_o = op1_add_op2_res;
                         // if (mem_raddr_index == 2'b0) begin
-                        //     reg_wdata = {{16{mem_rdata_i[15]}}, mem_rdata_i[15:0]};
+                            reg_wdata = {{16{mem_rdata_i[15]}}, mem_rdata_i[15:0]};
                         // end else begin
                         //     reg_wdata = {{16{mem_rdata_i[31]}}, mem_rdata_i[31:16]};
                         // end
-                        reg_wdata = mem_rdata_i;
                     end
                     `INST_LW: begin
                         mem_mask = 2'b10;
@@ -595,7 +593,7 @@ module ex(
                         mem_raddr_o = op1_add_op2_res;
                         // case (mem_raddr_index)
                         //     2'b00: begin
-                        //         reg_wdata = {24'h0, mem_rdata_i[7:0]};
+                                reg_wdata = {24'h0, mem_rdata_i[7:0]};
                         //     end
                         //     2'b01: begin
                         //         reg_wdata = {24'h0, mem_rdata_i[15:8]};
@@ -607,7 +605,6 @@ module ex(
                         //         reg_wdata = {24'h0, mem_rdata_i[31:24]};
                         //     end
                         // endcase
-                        reg_wdata = mem_rdata_i;
                     end
                     `INST_LHU: begin
                         mem_mask = 2'b01;
@@ -621,11 +618,10 @@ module ex(
                         mem_req = `RIB_REQ;
                         mem_raddr_o = op1_add_op2_res;
                         // if (mem_raddr_index == 2'b0) begin
-                        //     reg_wdata = {16'h0, mem_rdata_i[15:0]};
+                            reg_wdata = {16'h0, mem_rdata_i[15:0]};
                         // end else begin
                         //     reg_wdata = {16'h0, mem_rdata_i[31:16]};
                         // end
-                        reg_wdata = mem_rdata_i;
                     end
                     default: begin
                         jump_flag = `JumpDisable;
