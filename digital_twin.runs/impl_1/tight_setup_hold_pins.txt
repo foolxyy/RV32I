@@ -1,0 +1,17 @@
++====================+===================+==================================================================+
+| Launch Setup Clock | Launch Hold Clock | Pin                                                              |
++====================+===================+==================================================================+
+| clk_out2_pll       | clk_out1_pll      | student_top_inst/Core_cpu/u_regs/regs_reg_r1_0_31_0_5/RAMB/I     |
+| clk_out2_pll       | clk_out1_pll      | student_top_inst/Core_cpu/u_regs/regs_reg_r2_0_31_0_5/RAMB/I     |
+| clk_out2_pll       | clk_out2_pll      | student_top_inst/Core_cpu/u_id_ex/op1_ff/qout_r_reg[5]/D         |
+| clk_out2_pll       | clk_out2_pll      | student_top_inst/Core_cpu/u_id_ex/op1_ff/qout_r_reg[11]/D        |
+| clk_out2_pll       | clk_out1_pll      | student_top_inst/Core_cpu/u_id_ex/op1_jump_ff/qout_r_reg[2]/D    |
+| clk_out2_pll       | clk_out1_pll      | student_top_inst/Core_cpu/u_id_ex/reg1_rdata_ff/qout_r_reg[2]/D  |
+| clk_out2_pll       | clk_out1_pll      | student_top_inst/Core_cpu/u_id_ex/op1_ff/qout_r_reg[2]/D         |
+| clk_out2_pll       | clk_out1_pll      | student_top_inst/Core_cpu/u_id_ex/op2_ff/qout_r_reg[2]/D         |
+| clk_out2_pll       | clk_out2_pll      | student_top_inst/Core_cpu/u_id_ex/op1_ff/qout_r_reg[8]/D         |
+| clk_out2_pll       | clk_out2_pll      | student_top_inst/Core_cpu/u_id_ex/op1_ff/qout_r_reg[9]/D         |
+| clk_out2_pll       | clk_out1_pll      | student_top_inst/Core_cpu/u_id_ex/reg2_rdata_ff/qout_r_reg[14]/D |
+| clk_out2_pll       | clk_out1_pll      | student_top_inst/Core_cpu/u_id_ex/reg1_rdata_ff/qout_r_reg[3]/D  |
+| clk_out2_pll       | clk_out1_pll      | student_top_inst/Core_cpu/u_id_ex/reg2_rdata_ff/qout_r_reg[3]/D  |
++--------------------+-------------------+------------------------------------------------------------------+
